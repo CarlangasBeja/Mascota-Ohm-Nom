@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Menu Principal</title>
+
+    <link rel="stylesheet" href="css/login.css">
+
+</head>
+
+<body>
+
+
+    <!-- =====================================================
+         LOGIN
+         ===================================================== -->
+
+    <div
+        class="login-container"
+        id="loginForm"
+    >
+
+        <h2>
+            Iniciar Sesión
+        </h2>
+
+
+        <input
+            type="text"
+            id="username"
+            placeholder="Usuario"
+        >
+
+
+        <input
+            type="password"
+            id="password"
+            placeholder="Contraseña"
+        >
+
+
+        <button
+            type="button"
+            onclick="guardados.login()"
+        >
+            Iniciar Sesión
+        </button>
+
+
+        <button
+            type="button"
+            onclick="toggleCreatePetForm()"
+        >
+            Crear nueva partida
+        </button>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         CREAR PARTIDA
+         ===================================================== -->
+
+    <div
+        class="login-container"
+        id="createPetForm"
+        style="display: none;"
+    >
+
+        <h2>
+            Crear Nueva Partida
+        </h2>
+
+
+        <input
+            type="text"
+            id="newUsername"
+            placeholder="Nombre de usuario"
+        >
+
+
+        <input
+            type="password"
+            id="newPassword"
+            placeholder="Contraseña"
+        >
+
+
+        <input
+            type="password"
+            id="confirmPassword"
+            placeholder="Confirmar contraseña"
+        >
+
+
+        <input
+            type="text"
+            id="petName"
+            placeholder="Nombre de tu mascota"
+        >
+
+
+        <button
+            type="button"
+            onclick="guardados.crearPartida()"
+        >
+            Crear partida
+        </button>
+
+
+        <button
+            type="button"
+            onclick="goBackToLogin()"
+        >
+            Volver al login
+        </button>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         LOADING
+         ===================================================== -->
+
+    <div id="loadingOverlay">
+
+        <div class="loader"></div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+         ===================================================== -->
+
+    <script src="js/models/Tamagochi.js"></script>
+    <script src="js/models/Jugador.js"></script>
+
+    <script src="js/repositories/IPlayerRepository.js"></script>
+    <script src="js/repositories/IMessageRepository.js"></script>
+
+    <script src="js/repositories/LocalStoragePlayerRepository.js"></script>
+    <script src="js/repositories/LocalStorageMessageRepository.js"></script>
+
+    <script src="js/services/MascotaService.js"></script>
+    <script src="js/services/PlayerService.js"></script>
+    <script src="js/services/GameService.js"></script>
+    <script src="js/services/TimerService.js"></script>
+
+    <script src="js/ui/GameView.js"></script>
+    <script src="js/ui/LoginView.js"></script>
+    <script src="js/ui/MessageView.js"></script>
+
+    <script src="js/controllers/NavigationController.js"></script>
+    <script src="js/controllers/GameController.js"></script>
+    <script src="js/controllers/LoginController.js"></script>
+
+    <script src="js/Guardados.js"></script>
+
+
+    <script>
+
+        window.guardados = new Guardados();
+
+    </script>
+
+
+    <!-- FUNCIONES DEL LOGIN -->
+
+    <script>
+
+        function toggleCreatePetForm() {
+
+            guardados.loginController.loginView.mostrarCreacion();
+
+        }
+
+
+        function goBackToLogin() {
+
+            guardados.loginController.volverLogin();
+
+        }
+
+
+        function showLoading() {
+
+            const loading =
+                document.getElementById('loadingOverlay');
+
+            if (loading) {
+
+                loading.style.display = 'flex';
+
+            }
+
+        }
+
+
+        function hideLoading() {
+
+            const loading =
+                document.getElementById('loadingOverlay');
+
+            if (loading) {
+
+                loading.style.display = 'none';
+
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Tamagochi</title>
+
+    <link rel="stylesheet" href="css/menu.css">
+
+</head>
+
+<body>
+
+
+    <!-- =====================================================
+         PANEL DE INFORMACIÓN
+         ===================================================== -->
+
+    <div class="column-texts">
+
+        <div class="fondo">
+
+            <div class="contenedor">
+
+                <div id="text1">
+                    Level: 1
+                </div>
+
+                <div id="textEstado">
+                    Estado: 😀
+                </div>
+
+            </div>
+
+
+            <div id="text2">
+
+                <img
+                    src="imagenes/corazonPixeles.png"
+                    alt="Vida"
+                >
+
+                Vida: 100
+
+            </div>
+
+
+            <div id="text3">
+
+                <img
+                    src="imagenes/felicidadPixeles.png"
+                    alt="Felicidad"
+                >
+
+                Felicidad: 10
+
+            </div>
+
+
+            <div id="text4">
+
+                <img
+                    src="imagenes/pesoPixel.png"
+                    alt="Peso"
+                >
+
+                Peso: 5
+
+            </div>
+
+
+            <div id="text5">
+
+                <img
+                    src="imagenes/xPixel.png"
+                    alt="Baño"
+                >
+
+                No quiere ir al baño
+
+            </div>
+
+
+            <div id="text6">
+
+                <img
+                    src="imagenes/xPixel.png"
+                    alt="Dormir"
+                >
+
+                No quiere ir a dormir
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             MENSAJES
+             ================================================= -->
+
+        <div class="fondo mensajes-fondo">
+
+            <div id="mensajes"></div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         NAVEGACIÓN
+         ===================================================== -->
+
+    <div class="button-container">
+
+
+        <!-- DORMIR -->
+
+        <button onclick="goToDormir()">
+
+            <img
+                src="imagenes/dormirr.png"
+                alt="Dormir"
+                class="button-image"
+            >
+
+        </button>
+
+
+        <!-- COMIDA -->
+
+        <button onclick="goToComer()">
+
+            <img
+                src="imagenes/comida.png"
+                alt="Comida"
+                class="button-image"
+            >
+
+        </button>
+
+
+        <!-- BAÑO -->
+
+        <button onclick="goToBanio()">
+
+            <img
+                src="imagenes/baño.png"
+                alt="Baño"
+                class="button-image"
+            >
+
+        </button>
+
+
+        <!-- JUGAR -->
+
+        <button onclick="goToJugar()">
+
+            <img
+                src="imagenes/pelota.png"
+                alt="Jugar"
+                class="button-image"
+            >
+
+        </button>
+
+
+        <!-- GUARDAR -->
+
+        <button onclick="guardados.accionarBotonesDidacticos('guardar')">
+
+            <img
+                src="imagenes/guarda.png"
+                alt="Guardar"
+                class="button-image"
+            >
+
+        </button>
+
+
+        <!-- SALIR -->
+
+        <button onclick="guardados.accionarBotonesDidacticos('salir')">
+
+            <img
+                src="imagenes/salir.png"
+                alt="Salir"
+                class="button-image"
+            >
+
+        </button>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         MASCOTA
+         ===================================================== -->
+
+    <img
+        id="imagenEncima"
+        src="imagenes/om nom sala.gif"
+        alt="Tamagochi"
+    >
+
+
+    <!-- NOMBRE DE LA MASCOTA -->
+
+    <div id="textoEncima">
+        Tamagochi
+    </div>
+
+
+    <!-- USUARIO -->
+
+    <div id="textoEsquina">
+        Jugador
+    </div>
+
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+         ===================================================== -->
+
+    <!-- MODELOS -->
+
+    <script src="js/models/Tamagochi.js"></script>
+    <script src="js/models/Jugador.js"></script>
+
+
+    <!-- REPOSITORIOS -->
+
+    <script src="js/repositories/IPlayerRepository.js"></script>
+    <script src="js/repositories/IMessageRepository.js"></script>
+
+    <script src="js/repositories/LocalStoragePlayerRepository.js"></script>
+    <script src="js/repositories/LocalStorageMessageRepository.js"></script>
+
+
+    <!-- SERVICIOS -->
+
+    <script src="js/services/MascotaService.js"></script>
+    <script src="js/services/PlayerService.js"></script>
+    <script src="js/services/GameService.js"></script>
+    <script src="js/services/TimerService.js"></script>
+
+
+    <!-- VISTAS -->
+
+    <script src="js/ui/GameView.js"></script>
+    <script src="js/ui/LoginView.js"></script>
+    <script src="js/ui/MessageView.js"></script>
+
+
+    <!-- CONTROLADORES -->
+
+    <script src="js/controllers/NavigationController.js"></script>
+    <script src="js/controllers/GameController.js"></script>
+    <script src="js/controllers/LoginController.js"></script>
+
+
+    <!-- FACHADA -->
+
+    <script src="js/Guardados.js"></script>
+
+
+    <script>
+
+        /*
+         * Se coloca Guardados en window para que
+         * los onclick puedan utilizarlo.
+         */
+
+        window.guardados = new Guardados();
+
+
+        /*
+         * Cargar jugador y partida.
+         */
+
+        window.guardados.cargarDatos();
+
+    </script>
+
+</body>
+
+</html>

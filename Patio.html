@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Patio</title>
+
+    <link rel="stylesheet" href="css/patio.css">
+
+</head>
+
+<body>
+
+
+    <!-- INFORMACIÓN -->
+
+    <div class="column-texts">
+
+        <div class="fondo">
+
+            <div class="contenedor">
+
+                <div id="text1">
+                    Level: 1
+                </div>
+
+                <div id="textEstado">
+                    Estado: 😀
+                </div>
+
+            </div>
+
+
+            <div id="text2">
+
+                <img
+                    src="imagenes/corazonPixeles.png"
+                    alt="Vida"
+                >
+
+                Vida
+
+            </div>
+
+
+            <div id="text3">
+
+                <img
+                    src="imagenes/felicidadPixeles.png"
+                    alt="Felicidad"
+                >
+
+                Felicidad
+
+            </div>
+
+
+            <div id="text4">
+
+                <img
+                    src="imagenes/pesoPixel.png"
+                    alt="Peso"
+                >
+
+                Peso
+
+            </div>
+
+
+            <div id="text5">
+
+                <img
+                    src="imagenes/vistoPixel.png"
+                    alt="Baño"
+                >
+
+                Quiere ir al baño
+
+            </div>
+
+
+            <div id="text6">
+
+                <img
+                    src="imagenes/xPixel.png"
+                    alt="Dormir"
+                >
+
+                Quiere ir a dormir
+
+            </div>
+
+        </div>
+
+
+        <div class="fondo mensajes-fondo">
+
+            <div id="mensajes"></div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- NAVEGACIÓN -->
+
+    <div class="button-container">
+
+        <button onclick="goToSalaPrincipal()">
+
+            <img
+                src="imagenes/sala.png"
+                alt="Sala"
+                class="button-image"
+            >
+
+        </button>
+
+
+        <button onclick="goToComer()">
+
+            <img
+                src="imagenes/comida.png"
+                alt="Comida"
+                class="button-image"
+            >
+
+        </button>
+
+
+        <button onclick="goToDormir()">
+
+            <img
+                src="imagenes/dormirr.png"
+                alt="Dormir"
+                class="button-image"
+            >
+
+        </button>
+
+
+        <button onclick="goToBanio()">
+
+            <img
+                src="imagenes/baño.png"
+                alt="Baño"
+                class="button-image"
+            >
+
+        </button>
+
+
+        <button onclick="guardados.accionarBotonesDidacticos('guardar')">
+
+            <img
+                src="imagenes/guarda.png"
+                alt="Guardar"
+                class="button-image"
+            >
+
+        </button>
+
+
+        <button onclick="guardados.accionarBotonesDidacticos('salir')">
+
+            <img
+                src="imagenes/salir.png"
+                alt="Salir"
+                class="button-image"
+            >
+
+        </button>
+
+    </div>
+
+
+
+    <!-- MASCOTA -->
+
+    <img
+        id="imagenEncima"
+        src="imagenes/om nom jugando.gif"
+        alt="Tamagochi"
+    >
+
+
+    <div id="textoEncima">
+        ¡Diviértete jugando!
+    </div>
+
+
+    <div id="textoEsquina">
+        Bienvenido, Jugador
+    </div>
+
+
+
+    <!-- BOTÓN JUGAR -->
+
+    <button
+        id="botonAccion"
+        onclick="guardados.accionarBotonesDidacticos('jugar')"
+    >
+
+        <img
+            src="imagenes/boton de jugar.png"
+            alt="Jugar"
+        >
+
+    </button>
+
+
+
+    <!-- JAVASCRIPT -->
+
+    <script src="js/models/Tamagochi.js"></script>
+    <script src="js/models/Jugador.js"></script>
+
+    <script src="js/repositories/IPlayerRepository.js"></script>
+    <script src="js/repositories/IMessageRepository.js"></script>
+
+    <script src="js/repositories/LocalStoragePlayerRepository.js"></script>
+    <script src="js/repositories/LocalStorageMessageRepository.js"></script>
+
+    <script src="js/services/MascotaService.js"></script>
+    <script src="js/services/PlayerService.js"></script>
+    <script src="js/services/GameService.js"></script>
+    <script src="js/services/TimerService.js"></script>
+
+    <script src="js/ui/GameView.js"></script>
+    <script src="js/ui/LoginView.js"></script>
+    <script src="js/ui/MessageView.js"></script>
+
+    <script src="js/controllers/NavigationController.js"></script>
+    <script src="js/controllers/GameController.js"></script>
+    <script src="js/controllers/LoginController.js"></script>
+
+    <script src="js/Guardados.js"></script>
+
+    <script>
+
+        window.guardados = new Guardados();
+
+        window.guardados.cargarDatos();
+
+    </script>
+
+</body>
+
+</html>
