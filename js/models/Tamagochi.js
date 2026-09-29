@@ -1,65 +1,51 @@
-// ============================================================
-// MODELO TAMAGOCHI
-// ============================================================
-// Representa los datos y estado de la mascota.
-//
-// SOLID:
-// - SRP: únicamente representa el estado de Tamagochi.
-// - No contiene HTML.
-// - No contiene LocalStorage.
-// - No contiene navegación.
-// ============================================================
-
+/**
+ * ============================================================
+ * MODELO TAMAGOCHI
+ * ============================================================
+ *
+ * RESPONSABILIDAD:
+ * Representar únicamente el estado de la mascota.
+ *
+ * SOLID - SRP:
+ * Esta clase solamente almacena información de la mascota.
+ *
+ * IMPORTANTE:
+ * Se eliminó el Singleton porque cada jugador debe poder tener
+ * una instancia independiente de Tamagochi.
+ */
 class Tamagochi {
 
     constructor(nombre) {
 
-        // ====================================================
-        // SINGLETON
-        // ====================================================
-        // Garantizamos una única instancia de Tamagochi
-        // durante la ejecución de la página.
-        // ====================================================
-
-        if (Tamagochi.instance instanceof Tamagochi) {
-            return Tamagochi.instance;
-        }
-
-
-        // ====================================================
-        // DATOS INICIALES
-        // ====================================================
-
         this.peso = 5.0;
-
         this.nivel = 1;
-
         this.vida = 100;
-
         this.felicidad = 10;
 
         this.nombre = nombre;
 
         this.necesidadBano = false;
-
-        this.necesidadComida = false;
-
         this.dormir = false;
 
+        // Cantidad de veces que ha comido antes de ir al baño.
         this.count = 0;
 
-        this.countJugadas = 0;
-
+        // Estado visual.
         this.state = '😀';
 
+        // Hambre de 0 a 10.
+        this.hambre = 0;
 
-        Tamagochi.instance = this;
+        // Cantidad de veces que ha jugado desde la última comida.
+        this.countJugadas = 0;
+
+        // Indica si necesita comida.
+        this.necesidadComida = false;
+
+        // Evitan repetir advertencias constantemente.
+        this.advertenciaHambre = false;
+        this.advertenciaVida = false;
     }
-
-
-    // ========================================================
-    // ESTADO
-    // ========================================================
 
     getState() {
         return this.state;
@@ -69,11 +55,6 @@ class Tamagochi {
         this.state = state;
     }
 
-
-    // ========================================================
-    // NIVEL
-    // ========================================================
-
     getNivel() {
         return this.nivel;
     }
@@ -82,67 +63,29 @@ class Tamagochi {
         this.nivel = nivel;
     }
 
-
-    // ========================================================
-    // VIDA
-    // ========================================================
-
     getVida() {
         return this.vida;
     }
 
     setVida(vida) {
-
-        if (vida < 0) {
-            vida = 0;
-        }
-
-        if (vida > 100) {
-            vida = 100;
-        }
-
-        this.vida = vida;
+        this.vida = Math.max(0, Math.min(100, vida));
     }
-
-
-    // ========================================================
-    // PESO
-    // ========================================================
 
     getPeso() {
         return this.peso;
     }
 
     setPeso(peso) {
-        this.peso = peso;
+        this.peso = Math.max(0, peso);
     }
-
-
-    // ========================================================
-    // FELICIDAD
-    // ========================================================
 
     getFelicidad() {
         return this.felicidad;
     }
 
     setFelicidad(felicidad) {
-
-        if (felicidad < 0) {
-            felicidad = 0;
-        }
-
-        if (felicidad > 10) {
-            felicidad = 10;
-        }
-
-        this.felicidad = felicidad;
+        this.felicidad = Math.max(0, Math.min(10, felicidad));
     }
-
-
-    // ========================================================
-    // NOMBRE
-    // ========================================================
 
     getNombre() {
         return this.nombre;
@@ -152,11 +95,6 @@ class Tamagochi {
         this.nombre = nombre;
     }
 
-
-    // ========================================================
-    // DORMIR
-    // ========================================================
-
     isDormir() {
         return this.dormir;
     }
@@ -164,11 +102,6 @@ class Tamagochi {
     setDormir(dormir) {
         this.dormir = dormir;
     }
-
-
-    // ========================================================
-    // NECESIDAD DE BAÑO
-    // ========================================================
 
     getNecesidadBano() {
         return this.necesidadBano;
@@ -178,42 +111,51 @@ class Tamagochi {
         this.necesidadBano = necesidadBano;
     }
 
-
-    // ========================================================
-    // CONTADOR DE COMIDAS
-    // ========================================================
-
     getCount() {
         return this.count;
     }
 
     setCount(count) {
-        this.count = count;
+        this.count = Math.max(0, count);
     }
 
-
-    // ========================================================
-    // NECESIDAD DE COMIDA
-    // ========================================================
-
-    getNecesidadComida() {
-        return this.necesidadComida;
+    getHambre() {
+        return this.hambre;
     }
 
-    setNecesidadComida(necesidadComida) {
-        this.necesidadComida = necesidadComida;
+    setHambre(hambre) {
+        this.hambre = Math.max(0, Math.min(10, hambre));
     }
-
-
-    // ========================================================
-    // CONTADOR DE JUEGOS
-    // ========================================================
 
     getCountJugadas() {
         return this.countJugadas;
     }
 
     setCountJugadas(countJugadas) {
-        this.countJugadas = countJugadas;
+        this.countJugadas = Math.max(0, countJugadas);
+    }
+
+    getNecesidadComida() {
+        return this.necesidadComida;
+    }
+
+    setNecesidadComida(valor) {
+        this.necesidadComida = valor;
+    }
+
+    getAdvertenciaHambre() {
+        return this.advertenciaHambre;
+    }
+
+    setAdvertenciaHambre(valor) {
+        this.advertenciaHambre = valor;
+    }
+
+    getAdvertenciaVida() {
+        return this.advertenciaVida;
+    }
+
+    setAdvertenciaVida(valor) {
+        this.advertenciaVida = valor;
     }
 }

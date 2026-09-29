@@ -1,26 +1,29 @@
-/*
+/**
  * ============================================================
- * ABSTRACCIÓN: IMessageRepository
+ * CONTRATO PARA REPOSITORIO DE MENSAJES
  * ============================================================
  *
- * SOLID - ISP:
- * Los mensajes tienen su propio contrato.
- *
- * Esto evita que una clase tenga que depender de operaciones
- * que no necesita.
+ * ISP:
+ * Esta abstracción solamente contiene operaciones
+ * relacionadas con mensajes.
  */
-
 class IMessageRepository {
 
     obtenerTodos() {
-        throw new Error("Método obtenerTodos no implementado.");
+        throw new Error(
+            "Método obtenerTodos no implementado."
+        );
     }
 
     guardar(mensaje) {
-        throw new Error("Método guardar no implementado.");
+        throw new Error(
+            "Método guardar no implementado."
+        );
     }
 
     limpiar() {
-        throw new Error("Método limpiar no implementado.");
+        throw new Error(
+            "Método limpiar no implementado."
+        );
     }
 }

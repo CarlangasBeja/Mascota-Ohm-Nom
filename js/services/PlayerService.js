@@ -16,87 +16,125 @@
  * No depende directamente de localStorage.
  */
 
+/**
+ * ============================================================
+ * SERVICIO DE JUGADORES
+ * ============================================================
+ */
 class PlayerService {
 
     constructor(playerRepository) {
 
-        this.playerRepository = playerRepository;
+        this.playerRepository =
+            playerRepository;
     }
 
-    crearJugador(nombre, mascota, clave) {
+    crearJugador(
+        nombre,
+        mascota,
+        clave
+    ) {
 
         const jugadores =
-            this.playerRepository.obtenerTodos();
+            this.playerRepository
+                .obtenerTodos();
 
-        const existe = jugadores.some(
-            jugador => jugador.nombre === nombre
-        );
+        const existe =
+            jugadores.some(
+                jugador =>
+                    jugador.nombre === nombre
+            );
 
         if (existe) {
             return false;
         }
 
         const nuevoJugador =
-            new Jugador(nombre, mascota, clave);
+            new Jugador(
+                nombre,
+                mascota,
+                clave
+            );
 
         nuevoJugador.setPrimeraConexion(
             this.fecha()
         );
 
-        jugadores.push(nuevoJugador);
+        jugadores.push(
+            nuevoJugador
+        );
 
-        this.playerRepository.guardarTodos(jugadores);
+        this.playerRepository
+            .guardarTodos(jugadores);
 
         return true;
     }
 
     buscarJugador(nombre) {
 
-        return this.playerRepository.buscarPorNombre(
-            nombre
-        );
+        return this.playerRepository
+            .buscarPorNombre(nombre);
     }
 
     eliminarJugador(nombre) {
 
-        this.playerRepository.eliminarPorNombre(
-            nombre
-        );
+        this.playerRepository
+            .eliminarPorNombre(nombre);
     }
 
     guardarJugador(jugador) {
 
         const jugadores =
-            this.playerRepository.obtenerTodos();
+            this.playerRepository
+                .obtenerTodos();
 
-        const index = jugadores.findIndex(
-            jugadorGuardado =>
-                jugadorGuardado.nombre === jugador.getNombre()
-        );
+        const index =
+            jugadores.findIndex(
+                jugadorGuardado =>
+                    jugadorGuardado.nombre ===
+                    jugador.getNombre()
+            );
 
         if (index !== -1) {
 
-            jugadores[index] = jugador;
+            jugadores[index] =
+                jugador;
 
-            this.playerRepository.guardarTodos(jugadores);
+            this.playerRepository
+                .guardarTodos(jugadores);
         }
+    }
+
+    /**
+     * Evita que LoginController tenga que entrar
+     * directamente al repositorio.
+     */
+    hayJugadores() {
+
+        return (
+            this.playerRepository
+                .obtenerTodos()
+                .length > 0
+        );
     }
 
     fecha() {
 
-        const fecha = new Date();
+        const fecha =
+            new Date();
 
-        const formato = new Intl.DateTimeFormat(
-            'es-ES',
-            {
-                year: 'numeric',
-                month: 'numeric',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: 'numeric',
-                second: 'numeric'
-            }
-        );
+        const formato =
+            new Intl.DateTimeFormat(
+                'es-ES',
+                {
+                    year: 'numeric',
+                    month: 'numeric',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    second: 'numeric'
+                }
+            );
 
         return formato.format(fecha);
     }

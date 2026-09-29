@@ -1,34 +1,37 @@
-/*
+/**
  * ============================================================
- * ABSTRACCIÓN: IPlayerRepository
+ * CONTRATO PARA REPOSITORIOS DE JUGADORES
  * ============================================================
  *
- * SOLID - DIP:
- * La aplicación no debe depender directamente de localStorage.
+ * DIP:
+ * Los servicios pueden trabajar contra esta abstracción.
  *
- * SOLID - ISP:
- * Este contrato solamente representa operaciones relacionadas
- * con jugadores.
- *
- * JavaScript no tiene interfaces nativas como C# o Java,
- * por eso utilizamos una clase abstracta como contrato.
+ * ISP:
+ * Solamente contiene operaciones relacionadas con jugadores.
  */
-
 class IPlayerRepository {
 
     obtenerTodos() {
-        throw new Error("Método obtenerTodos no implementado.");
+        throw new Error(
+            "Método obtenerTodos no implementado."
+        );
     }
 
     guardarTodos(jugadores) {
-        throw new Error("Método guardarTodos no implementado.");
+        throw new Error(
+            "Método guardarTodos no implementado."
+        );
     }
 
     buscarPorNombre(nombre) {
-        throw new Error("Método buscarPorNombre no implementado.");
+        throw new Error(
+            "Método buscarPorNombre no implementado."
+        );
     }
 
     eliminarPorNombre(nombre) {
-        throw new Error("Método eliminarPorNombre no implementado.");
+        throw new Error(
+            "Método eliminarPorNombre no implementado."
+        );
     }
 }

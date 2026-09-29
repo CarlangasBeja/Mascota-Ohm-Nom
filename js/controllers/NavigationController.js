@@ -15,46 +15,30 @@
  * ============================================================
  */
 
+/**
+ * ============================================================
+ * CONTROLADOR DE NAVEGACIÓN
+ * ============================================================
+ *
+ * SRP:
+ * Solamente controla navegación entre habitaciones.
+ */
 class NavigationController {
 
-    constructor(messageRepository, messageView) {
+    constructor(messageService) {
 
-        this.messageRepository = messageRepository;
-
-        this.messageView = messageView;
-
+        this.messageService =
+            messageService;
     }
-
-
-    /*
-     * ========================================================
-     * MÉTODO GENERAL DE NAVEGACIÓN
-     * ========================================================
-     *
-     * Guarda un mensaje indicando a qué habitación se ingresó
-     * y posteriormente cambia de página.
-     */
 
     navegar(pagina, mensaje) {
 
-        this.messageRepository.guardar(
-            mensaje
-        );
+        this.messageService
+            .agregar(mensaje);
 
-        this.messageView.mostrar(
-            this.messageRepository.obtenerTodos()
-        );
-
-        window.location.href = pagina;
-
+        window.location.href =
+            pagina;
     }
-
-
-    /*
-     * ========================================================
-     * IR A DORMIR
-     * ========================================================
-     */
 
     goToDormir() {
 
@@ -62,20 +46,7 @@ class NavigationController {
             'SalaDormir.html',
             'dormitorio'
         );
-
     }
-
-
-    /*
-     * ========================================================
-     * IR A LA SALA PRINCIPAL
-     * ========================================================
-     *
-     * IMPORTANTE:
-     * La sala principal es mascotaprincipal.html.
-     *
-     * MenuPrincipal.html es el LOGIN.
-     */
 
     goToSalaPrincipal() {
 
@@ -83,15 +54,7 @@ class NavigationController {
             'mascotaprincipal.html',
             'Sala Principal'
         );
-
     }
-
-
-    /*
-     * ========================================================
-     * IR A LA COCINA
-     * ========================================================
-     */
 
     goToComer() {
 
@@ -99,15 +62,7 @@ class NavigationController {
             'Cocina.html',
             'comedor'
         );
-
     }
-
-
-    /*
-     * ========================================================
-     * IR AL BAÑO
-     * ========================================================
-     */
 
     goToBanio() {
 
@@ -115,15 +70,7 @@ class NavigationController {
             'Banio.html',
             'Cuarto de baño'
         );
-
     }
-
-
-    /*
-     * ========================================================
-     * IR AL PATIO
-     * ========================================================
-     */
 
     goToJugar() {
 
@@ -131,28 +78,14 @@ class NavigationController {
             'Patio.html',
             'Patio'
         );
-
     }
-
-
-    /*
-     * ========================================================
-     * CERRAR SESIÓN
-     * ========================================================
-     *
-     * Al cerrar sesión regresamos al LOGIN.
-     *
-     * Por eso la página correcta es:
-     * MenuPrincipal.html
-     */
 
     cerrarSesion() {
 
-        this.messageRepository.limpiar();
+        this.messageService
+            .limpiar();
 
         window.location.href =
             'MenuPrincipal.html';
-
     }
-
 }

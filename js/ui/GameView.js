@@ -9,32 +9,71 @@
 // - No guarda información.
 // ============================================================
 
+/**
+ * ============================================================
+ * VISTA DEL JUEGO
+ * ============================================================
+ *
+ * RESPONSABILIDAD:
+ * Mostrar el estado actual de la mascota.
+ */
 class GameView {
 
     actualizar(jugador) {
 
-        const mascota = jugador.getMascota();
+        if (!jugador) {
+            return;
+        }
 
+        const mascota =
+            jugador.getMascota();
 
-        // ====================================================
-        // NIVEL
-        // ====================================================
+        const text1 =
+            document.getElementById(
+                'text1'
+            );
 
-        const text1 = document.getElementById('text1');
+        const estado =
+            document.getElementById(
+                'textEstado'
+            );
+
+        const vida =
+            document.getElementById(
+                'text2'
+            );
+
+        const felicidad =
+            document.getElementById(
+                'text3'
+            );
+
+        const peso =
+            document.getElementById(
+                'text4'
+            );
+
+        const bano =
+            document.getElementById(
+                'text5'
+            );
+
+        const dormir =
+            document.getElementById(
+                'text6'
+            );
 
         if (text1) {
 
             text1.innerText =
-                'Level: ' + mascota.getNivel();
+                'Level: ' +
+                mascota.getNivel();
         }
 
-
-        // ====================================================
-        // NOMBRE DE LA MASCOTA
-        // ====================================================
-
         const nombre =
-            document.getElementById('textoEncima');
+            document.getElementById(
+                'textoEncima'
+            );
 
         if (nombre) {
 
@@ -42,184 +81,70 @@ class GameView {
                 mascota.getNombre();
         }
 
-
-        // ====================================================
-        // NOMBRE DEL JUGADOR
-        // ====================================================
-
         const usuario =
-            document.getElementById('textoEsquina');
+            document.getElementById(
+                'textoEsquina'
+            );
 
         if (usuario) {
 
             usuario.innerText =
-                'Usuario: ' + jugador.getNombre();
+                'Usuario: ' +
+                jugador.getNombre();
         }
-
-
-        // ====================================================
-        // ESTADO
-        // ====================================================
-
-        const estado =
-            document.getElementById('textEstado');
 
         if (estado) {
 
             estado.innerText =
-                'Estado: ' + mascota.getState();
+                'Estado: ' +
+                mascota.getState();
         }
-
-
-        // ====================================================
-        // VIDA
-        // ====================================================
-
-        const vida =
-            document.getElementById('text2');
 
         if (vida) {
 
             vida.innerHTML =
-                `<img src="imagenes/corazonPixeles.png"
-                      alt="Image 2">
-                 Vida: ${mascota.getVida()}`;
+                `<img src="imagenes/corazonPixeles.png" alt="Vida"> ${mascota.getVida()}`;
         }
-
-
-        // ====================================================
-        // FELICIDAD
-        // ====================================================
-
-        const felicidad =
-            document.getElementById('text3');
 
         if (felicidad) {
 
             felicidad.innerHTML =
-                `<img src="imagenes/felicidadPixeles.png"
-                      alt="Image 3">
-                 Felicidad: ${mascota.getFelicidad()}`;
+                `<img src="imagenes/felicidadPixeles.png" alt="Felicidad"> ${mascota.getFelicidad()}`;
         }
-
-
-        // ====================================================
-        // PESO
-        // ====================================================
-
-        const peso =
-            document.getElementById('text4');
 
         if (peso) {
 
             peso.innerHTML =
-                `<img src="imagenes/pesoPixel.png"
-                      alt="Image 4">
-                 Peso: ${mascota.getPeso().toFixed(1)}`;
+                `<img src="imagenes/pesoPixel.png" alt="Peso"> ${mascota.getPeso().toFixed(1)}`;
         }
-
-
-        // ====================================================
-        // BAÑO
-        // ====================================================
-
-        const bano =
-            document.getElementById('text5');
 
         if (bano) {
 
-            if (mascota.getNecesidadBano()) {
+            if (
+                mascota.getNecesidadBano()
+            ) {
 
                 bano.innerHTML =
-                    `<img src="imagenes/vistoPixel.png"
-                          alt="Image 5">
-                     Quiere ir al baño`;
+                    `<img src="imagenes/vistoPixel.png" alt="Sí"> Quiere ir al baño`;
 
             } else {
 
                 bano.innerHTML =
-                    `<img src="imagenes/xPixel.png"
-                          alt="Image 5">
-                     No quiere ir al baño`;
+                    `<img src="imagenes/xPixel.png" alt="No"> No quiere ir al baño`;
             }
         }
-
-
-        // ====================================================
-        // DORMIR
-        // ====================================================
-
-        const dormir =
-            document.getElementById('text6');
 
         if (dormir) {
 
             if (mascota.isDormir()) {
 
                 dormir.innerHTML =
-                    `<img src="imagenes/vistoPixel.png"
-                          alt="Image 6">
-                     Quiere dormir`;
+                    `<img src="imagenes/vistoPixel.png" alt="Sí"> Quiere dormir`;
 
             } else {
 
                 dormir.innerHTML =
-                    `<img src="imagenes/xPixel.png"
-                          alt="Image 6">
-                     No quiere ir a dormir`;
-            }
-        }
-
-
-        // ====================================================
-        // NECESIDAD DE COMIDA
-        // ====================================================
-
-        const comida =
-            document.getElementById('textComida');
-
-        if (comida) {
-
-            if (mascota.getNecesidadComida()) {
-
-                comida.innerText =
-                    '🍽️ Tiene hambre, necesita comer';
-
-            } else {
-
-                comida.innerText =
-                    'No tiene hambre';
-            }
-        }
-
-
-        // ====================================================
-        // ADVERTENCIA DE VIDA
-        // ====================================================
-
-        const advertencia =
-            document.getElementById('advertenciaVida');
-
-        if (advertencia) {
-
-            if (mascota.getVida() <= 10 &&
-                mascota.getVida() > 0) {
-
-                advertencia.innerText =
-                    '⚠️ La mascota está a punto de morir. Necesita comer y descansar.';
-
-                advertencia.style.display = 'block';
-
-            } else if (mascota.getVida() <= 0) {
-
-                advertencia.innerText =
-                    '☠️ La mascota ha muerto.';
-
-                advertencia.style.display = 'block';
-
-            } else {
-
-                advertencia.style.display = 'none';
+                    `<img src="imagenes/xPixel.png" alt="No"> No quiere ir a dormir`;
             }
         }
     }

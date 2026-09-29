@@ -11,13 +11,25 @@
 // - Utiliza Repository para guardar mensajes.
 // ============================================================
 
+/**
+ * ============================================================
+ * SERVICIO DE TEMPORIZADORES
+ * ============================================================
+ *
+ * RESPONSABILIDAD:
+ * Administrar exclusivamente eventos automáticos basados
+ * en tiempo.
+ *
+ * IMPORTANTE:
+ * Ya NO existe recuperación automática de vida.
+ */
 class TimerService {
 
     constructor(
         mascotaService,
         gameView,
-        messageRepository,
-        messageView
+        messageService,
+        sessionRepository
     ) {
 
         this.mascotaService =
@@ -26,19 +38,22 @@ class TimerService {
         this.gameView =
             gameView;
 
-        this.messageRepository =
-            messageRepository;
+        this.messageService =
+            messageService;
 
-        this.messageView =
-            messageView;
+        this.sessionRepository =
+            sessionRepository;
 
         this.intervalos = [];
+
+        this.onMuerte = null;
     }
 
+    setOnMuerte(callback) {
 
-    // ========================================================
-    // INICIAR TEMPORIZADORES
-    // ========================================================
+        this.onMuerte =
+            callback;
+    }
 
     iniciar(jugador) {
 
@@ -47,240 +62,216 @@ class TimerService {
         const mascota =
             jugador.getMascota();
 
-
-        // ====================================================
-        // FELICIDAD
-        // ====================================================
-        // Cada 30 segundos disminuye un punto.
-        // ====================================================
-
+        /**
+         * ==========================================
+         * REDUCCIÓN DE FELICIDAD
+         * ==========================================
+         */
         const felicidadInterval =
             setInterval(() => {
 
-                if (mascota.getFelicidad() > 0) {
+                if (
+                    mascota.getVida() <= 0
+                ) {
+                    return;
+                }
+
+                if (
+                    mascota.getFelicidad() > 0
+                ) {
 
                     mascota.setFelicidad(
                         mascota.getFelicidad() - 1
                     );
 
-
-                    if (mascota.getFelicidad() < 4) {
-
-                        this.agregarMensaje(
-                            `${mascota.getNombre()} está con niveles bajos de felicidad.`
+                    this.mascotaService
+                        .actualizarEstado(
+                            mascota
                         );
+
+                    if (
+                        mascota.getFelicidad() < 4 &&
+                        mascota.getFelicidad() > 0
+                    ) {
+
+                        this.messageService
+                            .agregar(
+                                `${mascota.getNombre()} está con niveles bajos de felicidad`
+                            );
                     }
 
+                    if (
+                        mascota.getFelicidad() === 0
+                    ) {
 
-                    this.mascotaService.actualizarEstado(
-                        mascota
-                    );
-
-
-                    this.gameView.actualizar(
-                        jugador
-                    );
-
-
-                    if (mascota.getFelicidad() === 0) {
-
-                        this.agregarMensaje(
-                            `${mascota.getNombre()} está sin felicidad.`
-                        );
+                        this.messageService
+                            .agregar(
+                                `${mascota.getNombre()} está sin felicidad`
+                            );
                     }
+
+                    this.gameView
+                        .actualizar(jugador);
                 }
 
             }, 30000);
-
 
         this.intervalos.push(
             felicidadInterval
         );
 
-
-        // ====================================================
-        // SUEÑO
-        // ====================================================
-
+        /**
+         * ==========================================
+         * NECESIDAD DE DORMIR
+         * ==========================================
+         */
         const dormirInterval =
             setInterval(() => {
 
-                if (!mascota.isDormir()) {
+                if (
+                    mascota.getVida() <= 0
+                ) {
+                    return;
+                }
 
-                    mascota.setDormir(true);
+                if (
+                    !mascota.isDormir()
+                ) {
 
-                    this.agregarMensaje(
-                        `${mascota.getNombre()} ya quiere dormir.`
+                    mascota.setDormir(
+                        true
                     );
 
-                    this.gameView.actualizar(
-                        jugador
-                    );
+                    this.messageService
+                        .agregar(
+                            `${mascota.getNombre()} ya quiere dormir`
+                        );
+
+                    this.gameView
+                        .actualizar(jugador);
                 }
 
             }, 120000);
-
 
         this.intervalos.push(
             dormirInterval
         );
 
-
-        // ====================================================
-        // HAMBRE
-        // ====================================================
-        // Si la mascota jugó demasiado, comienza a perder
-        // vida lentamente hasta que coma.
-        // ====================================================
-
-        const hambreInterval =
-            setInterval(() => {
-
-                if (
-                    mascota.getNecesidadComida() &&
-                    mascota.getVida() > 0
-                ) {
-
-                    mascota.setVida(
-                        mascota.getVida() - 1
-                    );
-
-
-                    this.agregarMensaje(
-                        `${mascota.getNombre()} tiene hambre. Necesita comer.`
-                    );
-
-
-                    this.gameView.actualizar(
-                        jugador
-                    );
-                }
-
-            }, 30000);
-
-
-        this.intervalos.push(
-            hambreInterval
-        );
-
-
-        // ====================================================
-        // AGONIZAR
-        // ====================================================
-        // Si felicidad es muy baja, pierde vida.
-        // ====================================================
-
+        /**
+         * ==========================================
+         * PÉRDIDA DE VIDA POR FELICIDAD BAJA
+         * ==========================================
+         */
         const agonizarInterval =
             setInterval(() => {
 
                 if (
-                    mascota.getFelicidad() < 4 &&
-                    mascota.getVida() > 0
+                    mascota.getVida() <= 0
+                ) {
+                    return;
+                }
+
+                if (
+                    mascota.getFelicidad() < 4
                 ) {
 
-                    mascota.setVida(
-                        mascota.getVida() - 1
-                    );
+                    const resultado =
+                        this.mascotaService
+                            .lastimar(jugador);
 
+                    this.messageService
+                        .agregar(
+                            `${mascota.getNombre()} está perdiendo vida por su baja felicidad`
+                        );
 
-                    this.agregarMensaje(
-                        `${mascota.getNombre()} está en peligro.`
-                    );
+                    if (
+                        Array.isArray(
+                            resultado.mensajes
+                        )
+                    ) {
 
+                        resultado.mensajes
+                            .forEach(mensaje => {
 
-                    this.gameView.actualizar(
-                        jugador
-                    );
+                                this.messageService
+                                    .agregar(
+                                        mensaje
+                                    );
+                            });
+                    }
+
+                    this.gameView
+                        .actualizar(jugador);
+
+                    if (
+                        resultado.muerte
+                    ) {
+
+                        this.detener();
+
+                        if (
+                            typeof this.onMuerte ===
+                            'function'
+                        ) {
+
+                            this.onMuerte(
+                                jugador
+                            );
+                        }
+                    }
                 }
 
             }, 10000);
-
 
         this.intervalos.push(
             agonizarInterval
         );
 
-
-        // ====================================================
-        // RECUPERACIÓN NATURAL
-        // ====================================================
-        // Si está feliz y no tiene hambre, recupera lentamente.
-        // ====================================================
-
-        const recuperarInterval =
-            setInterval(() => {
-
-                if (
-                    mascota.getFelicidad() >= 4 &&
-                    !mascota.getNecesidadComida() &&
-                    mascota.getVida() > 0 &&
-                    mascota.getVida() < 100
-                ) {
-
-                    mascota.setVida(
-                        mascota.getVida() + 1
-                    );
-
-
-                    this.gameView.actualizar(
-                        jugador
-                    );
-                }
-
-            }, 10000);
-
-
-        this.intervalos.push(
-            recuperarInterval
-        );
-
-
-        // ====================================================
-        // GUARDADO AUTOMÁTICO
-        // ====================================================
-
+        /**
+         * ==========================================
+         * GUARDADO AUTOMÁTICO DE SESIÓN
+         * ==========================================
+         *
+         * DIP:
+         * TimerService ya no conoce localStorage.
+         */
         const guardadoInterval =
             setInterval(() => {
 
-                localStorage.setItem(
-                    'partidaJugador',
-                    JSON.stringify(jugador)
-                );
+                if (
+                    mascota.getVida() > 0
+                ) {
+
+                    this.sessionRepository
+                        .guardar(jugador);
+                }
 
             }, 500);
-
 
         this.intervalos.push(
             guardadoInterval
         );
+
+        /*
+         * IMPORTANTE:
+         *
+         * Se eliminó por completo el antiguo intervalo
+         * recuperarVida.
+         *
+         * Ahora la mascota recupera vida únicamente
+         * mediante la acción de comer.
+         */
     }
-
-
-    // ========================================================
-    // AGREGAR MENSAJE
-    // ========================================================
-
-    agregarMensaje(mensaje) {
-
-        this.messageRepository.guardar(
-            mensaje
-        );
-
-        this.messageView.mostrar(
-            this.messageRepository.obtenerTodos()
-        );
-    }
-
-
-    // ========================================================
-    // DETENER TEMPORIZADORES
-    // ========================================================
 
     detener() {
 
-        this.intervalos.forEach(
-            intervalo => clearInterval(intervalo)
-        );
+        this.intervalos
+            .forEach(intervalo => {
+
+                clearInterval(
+                    intervalo
+                );
+            });
 
         this.intervalos = [];
     }

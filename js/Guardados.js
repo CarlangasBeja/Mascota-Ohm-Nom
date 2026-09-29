@@ -1,8 +1,15 @@
-/*
+/**
  * ============================================================
- * REPOSITORIOS
+ * COMPOSICIÓN DE DEPENDENCIAS
  * ============================================================
+ *
+ * Aquí se crean las implementaciones concretas y se inyectan
+ * a los servicios y controladores.
  */
+
+// ============================================================
+// REPOSITORIOS
+// ============================================================
 
 const playerRepository =
     new LocalStoragePlayerRepository();
@@ -10,31 +17,13 @@ const playerRepository =
 const messageRepository =
     new LocalStorageMessageRepository();
 
-
-/*
- * ============================================================
- * SERVICIOS
- * ============================================================
- */
-
-const playerService =
-    new PlayerService(playerRepository);
-
-const mascotaService =
-    new MascotaService();
-
-const gameService =
-    new GameService(
-        playerService,
-        mascotaService
-    );
+const sessionRepository =
+    new LocalStorageSessionRepository();
 
 
-/*
- * ============================================================
- * VISTAS
- * ============================================================
- */
+// ============================================================
+// VISTAS
+// ============================================================
 
 const gameView =
     new GameView();
@@ -46,16 +35,39 @@ const loginView =
     new LoginView();
 
 
-/*
- * ============================================================
- * CONTROLADORES
- * ============================================================
- */
+// ============================================================
+// SERVICIOS
+// ============================================================
+
+const playerService =
+    new PlayerService(
+        playerRepository
+    );
+
+const mascotaService =
+    new MascotaService();
+
+const messageService =
+    new MessageService(
+        messageRepository,
+        messageView
+    );
+
+const gameService =
+    new GameService(
+        playerService,
+        mascotaService,
+        sessionRepository
+    );
+
+
+// ============================================================
+// CONTROLADORES
+// ============================================================
 
 const navigationController =
     new NavigationController(
-        messageRepository,
-        messageView
+        messageService
     );
 
 const gameController =
@@ -63,456 +75,332 @@ const gameController =
         gameService,
         playerService,
         gameView,
-        messageRepository,
-        messageView,
-        navigationController
+        messageService,
+        navigationController,
+        sessionRepository
     );
 
 const loginController =
     new LoginController(
         playerService,
-        loginView
+        loginView,
+        sessionRepository
     );
 
 
-/*
- * ============================================================
- * TIMER
- * ============================================================
- */
+// ============================================================
+// TEMPORIZADORES
+// ============================================================
 
 const timerService =
     new TimerService(
         mascotaService,
         gameView,
-        messageRepository,
-        messageView
+        messageService,
+        sessionRepository
     );
 
+gameController.setTimerService(
+    timerService
+);
 
-/*
- * ============================================================
- * FACHADA GUARDADOS
- * ============================================================
- *
- * Guardados sirve como punto de entrada para los HTML.
- *
- * Por ejemplo, cuando el HTML hace:
- *
- *     onclick="guardados.goToDormir()"
- *
- * Guardados recibe la llamada y la delega al
- * NavigationController.
- *
- * Esto permite que el HTML no tenga que conocer
- * directamente los controladores internos.
- * ============================================================
- */
+timerService.setOnMuerte(
+    jugador => {
+
+        gameController
+            .manejarMuerte(jugador);
+    }
+);
+
+
+// ============================================================
+// FACHADA
+// ============================================================
 
 class Guardados {
 
     constructor() {
 
-        /*
-         * Jugador actualmente cargado.
-         */
-
         this.jugador = null;
 
-
-        /*
-         * Guardamos las dependencias como propiedades.
+        /**
+         * ====================================================
+         * COMMAND
+         * ====================================================
+         *
+         * Se elimina el switch.
+         *
+         * Cada acción está asociada a un comando.
+         *
+         * OCP:
+         * Las acciones están desacopladas del flujo condicional
+         * que anteriormente existía en un switch.
          */
+        this.comandos = {
 
-        this.playerService =
-            playerService;
+            jugar: () =>
+                gameController
+                    .jugar(this.jugador),
 
-        this.mascotaService =
-            mascotaService;
+            comer: () =>
+                gameController
+                    .comer(this.jugador),
 
-        this.gameService =
-            gameService;
+            dormir: () =>
+                gameController
+                    .dormir(this.jugador),
+
+            usarBanio: () =>
+                gameController
+                    .usarBanio(
+                        this.jugador
+                    ),
+
+            guardar: () =>
+                gameController
+                    .guardar(
+                        this.jugador
+                    ),
+
+            salir: () =>
+                gameController
+                    .salir(
+                        this.jugador
+                    )
+        };
+
+        /**
+         * Se mantienen como propiedades para conservar
+         * compatibilidad con funciones que ya utilizabas.
+         */
+        this.loginController =
+            loginController;
 
         this.gameController =
             gameController;
 
-        this.loginController =
-            loginController;
-
-        this.loginView =
-            loginView;
-
         this.navigationController =
             navigationController;
-
-        this.messageRepository =
-            messageRepository;
-
-        this.messageView =
-            messageView;
-
-        this.timerService =
-            timerService;
-
     }
-
-
-    /*
-     * ========================================================
-     * CARGAR DATOS
-     * ========================================================
-     */
 
     cargarDatos() {
 
         this.jugador =
-            this.gameController.cargarDatos();
+            gameController
+                .cargarDatos();
 
         if (this.jugador) {
 
-            this.timerService.iniciar(
-                this.jugador
-            );
-
+            timerService
+                .iniciar(
+                    this.jugador
+                );
         }
-
     }
 
-
-    /*
+    /**
      * ========================================================
-     * ACCIONES DE LA MASCOTA
+     * PATRÓN COMMAND
      * ========================================================
      */
-
-    accionarBotonesDidacticos(accion) {
-
-        /*
-         * Si no tenemos jugador cargado,
-         * intentamos cargarlo.
-         */
+    accionarBotonesDidacticos(
+        accion
+    ) {
 
         if (!this.jugador) {
 
             this.jugador =
-                this.gameController.cargarJugador();
-
+                gameController
+                    .cargarJugador();
         }
-
-
-        /*
-         * Si no existe una partida,
-         * no hacemos nada.
-         */
 
         if (!this.jugador) {
 
+            console.warn(
+                'No existe una partida activa.'
+            );
+
             return;
-
         }
 
+        const comando =
+            this.comandos[accion];
 
-        switch (accion) {
+        if (
+            typeof comando ===
+            'function'
+        ) {
 
-            case 'jugar':
+            comando();
 
-                this.gameController.jugar(
-                    this.jugador
-                );
+        } else {
 
-                break;
-
-
-            case 'comer':
-
-                this.gameController.comer(
-                    this.jugador
-                );
-
-                break;
-
-
-            case 'dormir':
-
-                this.gameController.dormir(
-                    this.jugador
-                );
-
-                break;
-
-
-            case 'usarBanio':
-
-                this.gameController.usarBanio(
-                    this.jugador
-                );
-
-                break;
-
-
-            case 'guardar':
-
-                this.gameController.guardar(
-                    this.jugador
-                );
-
-                break;
-
-
-            case 'salir':
-
-                this.gameController.salir(
-                    this.jugador
-                );
-
-                break;
-
-
-            default:
-
-                console.log(
-                    'Opción no reconocida: ' + accion
-                );
-
+            console.warn(
+                `Acción no reconocida: ${accion}`
+            );
         }
-
     }
 
-
-    /*
-     * ========================================================
-     * LOGIN
-     * ========================================================
-     */
+    // ========================================================
+    // LOGIN
+    // ========================================================
 
     login() {
 
-        this.loginController.login();
-
+        loginController
+            .login();
     }
-
-
-    /*
-     * ========================================================
-     * CREAR PARTIDA
-     * ========================================================
-     */
 
     crearPartida() {
 
-        this.loginController.crearPartida();
-
+        loginController
+            .crearPartida();
     }
 
+    mostrarCreacion() {
 
-    /*
-     * ========================================================
-     * NAVEGACIÓN
-     * ========================================================
-     *
-     * Estos métodos son necesarios porque los HTML utilizan:
-     *
-     * guardados.goToDormir()
-     * guardados.goToSalaPrincipal()
-     * guardados.goToComer()
-     * guardados.goToBanio()
-     * guardados.goToJugar()
-     *
-     * ========================================================
-     */
+        loginController
+            .mostrarCreacion();
+    }
+
+    volverLogin() {
+
+        loginController
+            .volverLogin();
+    }
+
+    // ========================================================
+    // NAVEGACIÓN
+    // ========================================================
 
     goToDormir() {
 
-        this.navigationController.goToDormir();
-
+        navigationController
+            .goToDormir();
     }
-
 
     goToSalaPrincipal() {
 
-        this.navigationController.goToSalaPrincipal();
-
+        navigationController
+            .goToSalaPrincipal();
     }
-
 
     goToComer() {
 
-        this.navigationController.goToComer();
-
+        navigationController
+            .goToComer();
     }
-
 
     goToBanio() {
 
-        this.navigationController.goToBanio();
-
+        navigationController
+            .goToBanio();
     }
-
 
     goToJugar() {
 
-        this.navigationController.goToJugar();
-
+        navigationController
+            .goToJugar();
     }
-
-
-    /*
-     * ========================================================
-     * CERRAR SESIÓN
-     * ========================================================
-     */
-
-    cerrarSesion() {
-
-        this.navigationController.cerrarSesion();
-
-    }
-
-
-    /*
-     * ========================================================
-     * MENSAJES
-     * ========================================================
-     */
-
-    guardarMensaje(mensaje) {
-
-        this.messageRepository.guardar(
-            mensaje
-        );
-
-        this.messageView.mostrar(
-            this.messageRepository.obtenerTodos()
-        );
-
-    }
-
-
-    mostrarMensajesEnDiv() {
-
-        this.messageView.mostrar(
-            this.messageRepository.obtenerTodos()
-        );
-
-    }
-
-
-    /*
-     * ========================================================
-     * ELIMINAR PARTIDA
-     * ========================================================
-     */
-
-    eliminarPartida(jugador) {
-
-        this.gameService.eliminar(
-            jugador
-        );
-
-        this.navigationController.cerrarSesion();
-
-    }
-
 }
 
 
-/*
- * ============================================================
- * FUNCIONES GLOBALES
- * ============================================================
- *
- * Se mantienen para compatibilidad con los HTML originales.
- * ============================================================
- */
+// ============================================================
+// COMPATIBILIDAD CON HTML ORIGINAL
+// ============================================================
 
 function guardarMensaje(mensaje) {
 
-    messageRepository.guardar(
-        mensaje
-    );
-
-    messageView.mostrar(
-        messageRepository.obtenerTodos()
-    );
-
+    messageService
+        .agregar(mensaje);
 }
-
 
 function mostrarMensajesEnDiv() {
 
-    messageView.mostrar(
-        messageRepository.obtenerTodos()
-    );
-
+    messageService
+        .mostrar();
 }
-
 
 function eliminarPartida(jugador) {
 
-    gameService.eliminar(
-        jugador
-    );
+    timerService
+        .detener();
 
-    navigationController.cerrarSesion();
+    gameService
+        .eliminar(jugador);
 
+    messageService
+        .limpiar();
+
+    window.location.href =
+        'MenuPrincipal.html';
 }
 
+
+// ============================================================
+// FUNCIONES DE NAVEGACIÓN ORIGINALES
+// ============================================================
 
 function goToDormir() {
 
-    navigationController.goToDormir();
-
+    navigationController
+        .goToDormir();
 }
-
 
 function goToSalaPrincipal() {
 
-    navigationController.goToSalaPrincipal();
-
+    navigationController
+        .goToSalaPrincipal();
 }
-
 
 function goToComer() {
 
-    navigationController.goToComer();
-
+    navigationController
+        .goToComer();
 }
-
 
 function goToBanio() {
 
-    navigationController.goToBanio();
-
+    navigationController
+        .goToBanio();
 }
-
 
 function goToJugar() {
 
-    navigationController.goToJugar();
-
+    navigationController
+        .goToJugar();
 }
-
 
 function cerrarSesion() {
 
-    navigationController.cerrarSesion();
+    sessionRepository
+        .limpiar();
 
+    navigationController
+        .cerrarSesion();
 }
 
+
+// ============================================================
+// LOGIN
+// ============================================================
 
 function toggleCreatePetForm() {
 
-    loginView.mostrarCreacion();
-
+    loginController
+        .mostrarCreacion();
 }
-
 
 function goBackToLogin() {
 
-    loginController.volverLogin();
-
+    loginController
+        .volverLogin();
 }
 
+
+// ============================================================
+// LOADING
+// ============================================================
 
 function showLoading() {
 
@@ -523,12 +411,10 @@ function showLoading() {
 
     if (loading) {
 
-        loading.style.display = 'flex';
-
+        loading.style.display =
+            'flex';
     }
-
 }
-
 
 function hideLoading() {
 
@@ -539,8 +425,7 @@ function hideLoading() {
 
     if (loading) {
 
-        loading.style.display = 'none';
-
+        loading.style.display =
+            'none';
     }
-
 }

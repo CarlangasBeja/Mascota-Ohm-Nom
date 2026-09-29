@@ -11,69 +11,82 @@
  * a localStorage.
  */
 
+/**
+ * ============================================================
+ * CONTROLADOR DEL LOGIN
+ * ============================================================
+ */
 class LoginController {
 
-    constructor(playerService, loginView) {
+    constructor(
+        playerService,
+        loginView,
+        sessionRepository
+    ) {
 
-        this.playerService = playerService;
-        this.loginView = loginView;
+        this.playerService =
+            playerService;
+
+        this.loginView =
+            loginView;
+
+        this.sessionRepository =
+            sessionRepository;
     }
 
     login() {
 
         const datos =
-            this.loginView.obtenerLogin();
+            this.loginView
+                .obtenerLogin();
 
         const jugador =
-            this.playerService.buscarJugador(
-                datos.username
-            );
+            this.playerService
+                .buscarJugador(
+                    datos.username
+                );
 
         if (
             jugador &&
-            jugador.clave === datos.password
+            jugador.clave ===
+            datos.password
         ) {
 
             alert(
                 'Inicio de sesión exitoso'
             );
 
-            localStorage.setItem(
-                'partidaJugador',
-                JSON.stringify(jugador)
-            );
+            this.sessionRepository
+                .guardar(jugador);
 
             window.location.href =
                 'mascotaprincipal.html';
 
-        } else {
+            return;
+        }
 
-            if (!jugador) {
-
-                const jugadores =
-                    this.playerService.playerRepository
-                        .obtenerTodos();
-
-                if (jugadores.length === 0) {
-
-                    alert(
-                        'No hay jugadores registrados. Regístrate primero.'
-                    );
-
-                    return;
-                }
-            }
+        if (
+            !this.playerService
+                .hayJugadores()
+        ) {
 
             alert(
-                'Credenciales incorrectas. Intenta de nuevo.'
+                'No hay jugadores registrados. Regístrate primero.'
             );
+
+            return;
         }
+
+        alert(
+            'Credenciales incorrectas. Intenta de nuevo.'
+        );
     }
 
     crearPartida() {
 
         const datos =
-            this.loginView.obtenerNuevaPartida();
+            this.loginView
+                .obtenerNuevaPartida();
 
         if (
             datos.username === '' ||
@@ -98,23 +111,19 @@ class LoginController {
                 'La contraseña no coincide'
             );
 
-            document.getElementById(
-                'newPassword'
-            ).value = '';
-
-            document.getElementById(
-                'confirmPassword'
-            ).value = '';
+            this.loginView
+                .limpiarContrasenasCreacion();
 
             return;
         }
 
         const creada =
-            this.playerService.crearJugador(
-                datos.username,
-                datos.petName,
-                datos.password
-            );
+            this.playerService
+                .crearJugador(
+                    datos.username,
+                    datos.petName,
+                    datos.password
+                );
 
         if (creada) {
 
@@ -122,37 +131,32 @@ class LoginController {
                 'Se ha creado una nueva partida'
             );
 
-            this.loginView.limpiarNuevaPartida();
+            this.loginView
+                .limpiarNuevaPartida();
 
-            this.loginView.mostrarLogin();
+            this.loginView
+                .mostrarLogin();
 
         } else {
 
             alert(
-                'Nombre de usuario no esta disponible. Cambie a otro'
+                'Nombre de usuario no está disponible. Cambie a otro.'
             );
         }
     }
 
     mostrarCreacion() {
 
-        this.loginView.mostrarCreacion();
+        this.loginView
+            .mostrarCreacion();
     }
 
     volverLogin() {
 
-        localStorage.removeItem(
-            'mensajes'
-        );
+        this.loginView
+            .mostrarLogin();
 
-        this.loginView.mostrarLogin();
-
-        document.getElementById(
-            'username'
-        ).value = '';
-
-        document.getElementById(
-            'password'
-        ).value = '';
+        this.loginView
+            .limpiarLogin();
     }
 }

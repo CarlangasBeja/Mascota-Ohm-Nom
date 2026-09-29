@@ -9,11 +9,17 @@
 //   a MascotaService.
 // ============================================================
 
+/**
+ * ============================================================
+ * SERVICIO GENERAL DEL JUEGO
+ * ============================================================
+ */
 class GameService {
 
     constructor(
         playerService,
-        mascotaService
+        mascotaService,
+        sessionRepository
     ) {
 
         this.playerService =
@@ -21,98 +27,62 @@ class GameService {
 
         this.mascotaService =
             mascotaService;
+
+        this.sessionRepository =
+            sessionRepository;
     }
-
-
-    // ========================================================
-    // GUARDAR
-    // ========================================================
 
     guardar(jugador) {
 
-        this.playerService.guardarJugador(
-            jugador
-        );
+        this.playerService
+            .guardarJugador(jugador);
 
-        localStorage.setItem(
-            'partidaJugador',
-            JSON.stringify(jugador)
-        );
+        this.sessionRepository
+            .guardar(jugador);
     }
-
-
-    // ========================================================
-    // ELIMINAR
-    // ========================================================
 
     eliminar(jugador) {
 
-        this.playerService.eliminarJugador(
-            jugador.getNombre()
-        );
+        this.playerService
+            .eliminarJugador(
+                jugador.getNombre()
+            );
+
+        this.sessionRepository
+            .limpiar();
     }
-
-
-    // ========================================================
-    // JUGAR
-    // ========================================================
 
     jugar(jugador) {
 
-        this.mascotaService.jugar(
-            jugador
-        );
+        const resultado =
+            this.mascotaService
+                .jugar(jugador);
 
-        this.mascotaService.actualizarEstado(
-            jugador.getMascota()
-        );
+        this.mascotaService
+            .actualizarEstado(
+                jugador.getMascota()
+            );
+
+        return resultado;
     }
-
-
-    // ========================================================
-    // COMER
-    // ========================================================
 
     comer(jugador) {
 
-        this.mascotaService.comer(
-            jugador.getMascota()
-        );
+        return this.mascotaService
+            .comer(jugador);
     }
-
-
-    // ========================================================
-    // BAÑO
-    // ========================================================
 
     banio(jugador) {
 
-        this.mascotaService.banio(
-            jugador.getMascota()
-        );
+        return this.mascotaService
+            .banio(
+                jugador.getMascota()
+            );
     }
-
-
-    // ========================================================
-    // DORMIR
-    // ========================================================
-
-    dormir(jugador) {
-
-        this.mascotaService.dormir(
-            jugador.getMascota()
-        );
-    }
-
-
-    // ========================================================
-    // LASTIMAR
-    // ========================================================
 
     lastimar(jugador) {
 
-        this.mascotaService.lastimar(
-            jugador
-        );
+        return this.mascotaService
+            .lastimar(jugador);
     }
 }

@@ -1,31 +1,41 @@
-/*
+/**
  * ============================================================
- * REPOSITORIO DE JUGADORES
+ * REPOSITORIO LOCAL DE JUGADORES
  * ============================================================
- *
- * RESPONSABILIDAD:
- * Únicamente manejar los jugadores almacenados en localStorage.
- *
- * SOLID - SRP:
- * No contiene reglas del juego.
- *
- * SOLID - DIP:
- * Implementa el contrato IPlayerRepository.
  */
-
-class LocalStoragePlayerRepository extends IPlayerRepository {
+class LocalStoragePlayerRepository
+    extends IPlayerRepository {
 
     constructor() {
+
         super();
 
-        this.storageKey = 'datosDelJugador';
+        this.storageKey =
+            'datosDelJugador';
     }
 
     obtenerTodos() {
 
-        const data = localStorage.getItem(this.storageKey);
+        const data =
+            localStorage.getItem(
+                this.storageKey
+            );
 
-        return data ? JSON.parse(data) : [];
+        try {
+
+            return data
+                ? JSON.parse(data)
+                : [];
+
+        } catch (error) {
+
+            console.error(
+                'Error leyendo jugadores:',
+                error
+            );
+
+            return [];
+        }
     }
 
     guardarTodos(jugadores) {
@@ -38,21 +48,28 @@ class LocalStoragePlayerRepository extends IPlayerRepository {
 
     buscarPorNombre(nombre) {
 
-        const jugadores = this.obtenerTodos();
+        const jugadores =
+            this.obtenerTodos();
 
         return jugadores.find(
-            jugador => jugador.nombre === nombre
+            jugador =>
+                jugador.nombre === nombre
         );
     }
 
     eliminarPorNombre(nombre) {
 
-        const jugadores = this.obtenerTodos();
+        const jugadores =
+            this.obtenerTodos();
 
-        const nuevosJugadores = jugadores.filter(
-            jugador => jugador.nombre !== nombre
+        const nuevosJugadores =
+            jugadores.filter(
+                jugador =>
+                    jugador.nombre !== nombre
+            );
+
+        this.guardarTodos(
+            nuevosJugadores
         );
-
-        this.guardarTodos(nuevosJugadores);
     }
 }

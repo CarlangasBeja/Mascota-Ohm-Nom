@@ -12,62 +12,126 @@
 // - No maneja navegación.
 // ============================================================
 
+/**
+ * ============================================================
+ * SERVICIO DE LA MASCOTA
+ * ============================================================
+ *
+ * RESPONSABILIDAD:
+ * Contener las reglas de negocio propias del Tamagochi.
+ *
+ * SRP:
+ * Las reglas de vida, hambre, felicidad, comida y baño
+ * permanecen en esta clase.
+ */
 class MascotaService {
 
-    // ========================================================
-    // COMER
-    // ========================================================
-    // La mascota come:
-    // - Aumenta un poco su peso.
-    // - Recupera un poco de vida.
-    // - Aumenta el contador de comidas.
-    //
-    // Esto simula una mascota virtual:
-    // comer no recupera toda la vida de golpe.
-    // ========================================================
+    /**
+     * Alimentar a la mascota.
+     */
+    comer(jugador) {
 
-    comer(tamagochi) {
+        const mascota =
+            jugador.getMascota();
 
-        // Aumentamos ligeramente el peso.
-        tamagochi.setPeso(
-            tamagochi.getPeso() + 0.6
-        );
+        if (mascota.getVida() <= 0) {
 
-        // Aumentamos solamente 3 puntos de vida.
-        // Nunca puede superar 100.
-        let vidaActual = tamagochi.getVida();
-
-        vidaActual += 3;
-
-        if (vidaActual > 100) {
-            vidaActual = 100;
+            return {
+                permitido: false,
+                mensaje:
+                    'La mascota ya no puede comer.'
+            };
         }
 
-        tamagochi.setVida(vidaActual);
+        if (mascota.getCount() >= 4) {
 
-        // Registramos que la mascota comió.
-        tamagochi.setCount(
-            tamagochi.getCount() + 1
+            mascota.setNecesidadBano(
+                true
+            );
+
+            return {
+                permitido: false,
+                mensaje:
+                    'Ya no puede comer, quiere ir al baño.'
+            };
+        }
+
+        // Aumenta peso.
+        mascota.setPeso(
+            mascota.getPeso() + 0.6
         );
+
+        // Cuenta las comidas.
+        mascota.setCount(
+            mascota.getCount() + 1
+        );
+
+        // Comer reduce hambre.
+        mascota.setHambre(
+            mascota.getHambre() - 3
+        );
+
+        // Reiniciamos las jugadas relacionadas con hambre.
+        mascota.setCountJugadas(0);
+
+        // Si bajó el hambre, ya no necesita comida.
+        if (mascota.getHambre() < 7) {
+
+            mascota.setNecesidadComida(
+                false
+            );
+
+            mascota.setAdvertenciaHambre(
+                false
+            );
+        }
+
+        /**
+         * La vida se recupera mediante alimentación.
+         *
+         * Ya NO existe recuperación automática
+         * dentro de TimerService.
+         */
+        mascota.setVida(
+            mascota.getVida() + 2
+        );
+
+        // Permite volver a avisar si posteriormente
+        // vuelve a caer a 10 o menos.
+        if (mascota.getVida() > 10) {
+
+            mascota.setAdvertenciaVida(
+                false
+            );
+        }
+
+        return {
+            permitido: true
+        };
     }
 
-
-    // ========================================================
-    // JUGAR
-    // ========================================================
-    // Jugar aumenta la felicidad.
-    //
-    // Sin embargo, jugar constantemente también provoca
-    // hambre.
-    // ========================================================
-
+    /**
+     * Jugar aumenta felicidad/nivel y también hambre.
+     */
     jugar(jugador) {
 
-        const mascota = jugador.getMascota();
+        const mascota =
+            jugador.getMascota();
 
-        // Si tiene felicidad menor a 10,
-        // jugar aumenta un punto.
-        if (mascota.getFelicidad() < 10) {
+        if (mascota.getVida() <= 0) {
+
+            return {
+                permitido: false,
+                mensaje:
+                    'La mascota ya no puede jugar.'
+            };
+        }
+
+        const mensajes = [];
+
+        if (
+            mascota.getFelicidad() < 10
+        ) {
 
             mascota.setFelicidad(
                 mascota.getFelicidad() + 1
@@ -79,121 +143,168 @@ class MascotaService {
 
         } else {
 
-            // Si ya tiene felicidad máxima,
-            // jugar demasiado empieza a afectar su vida.
-            this.lastimar(jugador);
+            const resultadoVida =
+                this.reducirVida(mascota);
+
+            mensajes.push(
+                ...resultadoVida.mensajes
+            );
         }
 
-
-        // Cada vez que juega aumentamos el contador.
-        const cantidadJugadas = mascota.getCountJugadas() + 1;
-
-        mascota.setCountJugadas(cantidadJugadas);
-
-
-        // ====================================================
-        // HAMBRE POR JUGAR DEMASIADO
-        // ====================================================
-        // Cada 3 partidas la mascota empieza a necesitar
-        // comida.
-        // ====================================================
-
-        if (cantidadJugadas >= 3) {
-
-            mascota.setNecesidadComida(true);
-
-        }
-
-
-        // Actualizamos el estado visual.
-        this.actualizarEstado(mascota);
-    }
-
-
-    // ========================================================
-    // BAÑO
-    // ========================================================
-
-    banio(tamagochi) {
-
-        const random = Math.random();
-
-        const reduccion =
-            0.5 + ((1.5 - 0.5) * random);
-
-        tamagochi.setPeso(
-            tamagochi.getPeso() - reduccion
+        mascota.setCountJugadas(
+            mascota.getCountJugadas() + 1
         );
 
-        // Reiniciamos contador de comida.
+        mascota.setHambre(
+            mascota.getHambre() + 1
+        );
+
+        if (
+            mascota.getHambre() >= 7
+        ) {
+
+            mascota.setNecesidadComida(
+                true
+            );
+
+            if (
+                !mascota.getAdvertenciaHambre()
+            ) {
+
+                mascota.setAdvertenciaHambre(
+                    true
+                );
+
+                mensajes.push(
+                    'Tu mascota tiene hambre. Dale de comer.'
+                );
+            }
+        }
+
+        return {
+            permitido: true,
+            mensajes: mensajes
+        };
+    }
+
+    /**
+     * Llevar la mascota al baño.
+     */
+    banio(tamagochi) {
+
+        const random =
+            Math.random();
+
+        const reduccion =
+            0.5 +
+            ((1.5 - 0.5) * random);
+
+        tamagochi.setPeso(
+            tamagochi.getPeso() -
+            reduccion
+        );
+
         tamagochi.setCount(0);
 
-        tamagochi.setNecesidadBano(false);
+        tamagochi.setNecesidadBano(
+            false
+        );
+
+        return {
+            permitido: true
+        };
     }
 
-
-    // ========================================================
-    // DESCANSAR / DORMIR
-    // ========================================================
-
-    dormir(tamagochi) {
-
-        tamagochi.setDormir(false);
-
-        // Dormir permite recuperar un poco de vida.
-        let vida = tamagochi.getVida();
-
-        vida += 2;
-
-        if (vida > 100) {
-            vida = 100;
-        }
-
-        tamagochi.setVida(vida);
-    }
-
-
-    // ========================================================
-    // LASTIMAR
-    // ========================================================
-
+    /**
+     * Reduce la vida de la mascota.
+     */
     lastimar(jugador) {
 
-        const mascota = jugador.getMascota();
-
-        let vidaActual = mascota.getVida();
-
-        if (vidaActual > 0) {
-
-            vidaActual--;
-
-            if (vidaActual < 0) {
-                vidaActual = 0;
-            }
-
-            mascota.setVida(vidaActual);
-        }
+        return this.reducirVida(
+            jugador.getMascota()
+        );
     }
 
+    /**
+     * Centraliza la regla para perder vida.
+     */
+    reducirVida(mascota) {
 
-    // ========================================================
-    // ACTUALIZAR ESTADO
-    // ========================================================
+        const mensajes = [];
 
+        if (mascota.getVida() <= 0) {
+
+            return {
+                mensajes: mensajes,
+                muerte: true
+            };
+        }
+
+        mascota.setVida(
+            mascota.getVida() - 1
+        );
+
+        /**
+         * Advertencia una sola vez al entrar
+         * en la zona crítica.
+         */
+        if (
+            mascota.getVida() <= 10 &&
+            mascota.getVida() > 0 &&
+            !mascota.getAdvertenciaVida()
+        ) {
+
+            mascota.setAdvertenciaVida(
+                true
+            );
+
+            mensajes.push(
+                'La mascota está a punto de morir.'
+            );
+        }
+
+        if (
+            mascota.getVida() === 0
+        ) {
+
+            mensajes.push(
+                `${mascota.getNombre()} ha perdido toda su vida.`
+            );
+        }
+
+        return {
+            mensajes: mensajes,
+            muerte:
+                mascota.getVida() === 0
+        };
+    }
+
+    /**
+     * Estado visual dependiendo de felicidad.
+     */
     actualizarEstado(tamagochi) {
 
         const felicidad =
             tamagochi.getFelicidad();
 
-        if (felicidad <= 10 && felicidad > 8) {
+        if (
+            felicidad <= 10 &&
+            felicidad > 8
+        ) {
 
             tamagochi.setState('😀');
 
-        } else if (felicidad <= 8 && felicidad > 5) {
+        } else if (
+            felicidad <= 8 &&
+            felicidad > 5
+        ) {
 
             tamagochi.setState('😠');
 
-        } else if (felicidad <= 5 && felicidad > 2) {
+        } else if (
+            felicidad <= 5 &&
+            felicidad > 2
+        ) {
 
             tamagochi.setState('😭');
 

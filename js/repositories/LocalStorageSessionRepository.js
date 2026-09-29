@@ -1,53 +1,57 @@
 /**
  * ============================================================
- * REPOSITORIO LOCAL DE MENSAJES
+ * REPOSITORIO DE SESIÓN EN LOCALSTORAGE
  * ============================================================
+ *
+ * RESPONSABILIDAD:
+ * Persistir exclusivamente la partida activa.
+ *
+ * DIP:
+ * El resto de la aplicación no necesita conocer
+ * localStorage ni la clave "partidaJugador".
  */
-class LocalStorageMessageRepository
-    extends IMessageRepository {
+class LocalStorageSessionRepository
+    extends ISessionRepository {
 
     constructor() {
 
         super();
 
         this.storageKey =
-            'mensajes';
+            'partidaJugador';
     }
 
-    obtenerTodos() {
+    obtener() {
 
         const data =
             localStorage.getItem(
                 this.storageKey
             );
 
+        if (!data) {
+            return null;
+        }
+
         try {
 
-            return data
-                ? JSON.parse(data)
-                : [];
+            return JSON.parse(data);
 
         } catch (error) {
 
             console.error(
-                'Error leyendo mensajes:',
+                'Error leyendo la sesión:',
                 error
             );
 
-            return [];
+            return null;
         }
     }
 
-    guardar(mensaje) {
-
-        const mensajes =
-            this.obtenerTodos();
-
-        mensajes.push(mensaje);
+    guardar(jugador) {
 
         localStorage.setItem(
             this.storageKey,
-            JSON.stringify(mensajes)
+            JSON.stringify(jugador)
         );
     }
 
