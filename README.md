@@ -1,4 +1,3 @@
-# Mascota-Ohm-Nom
 # Tamagochi - Mascota Virtual
 
 Proyecto de mascota virtual desarrollado con **HTML, CSS y JavaScript**, refactorizado con el objetivo de mejorar la organización, mantenibilidad y extensibilidad del código mediante la aplicación de los **principios SOLID**, separación por capas y algunos patrones de diseño.
